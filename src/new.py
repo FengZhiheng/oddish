@@ -3,11 +3,12 @@ import argparse
 from src.config.definitions import config
 
 praser = argparse.ArgumentParser('oddish')
-praser.add_argument('--output', '-o', 
-    help = "Place the output json into <file>", type = pathlib.Path, metavar = 'output.json')
-praser.add_argument('--console', 
-    help = "Disable Graphical User Interface", action='store_true', default = False)
+praser.add_argument('--output', '-o',
+                    help="Place the output json into <file>", type=pathlib.Path, metavar='output.json')
+praser.add_argument('--console',
+                    help="Disable Graphical User Interface", action='store_true', default=False)
 args = praser.parse_args()
+
 if config.CONSOLE or args.console:
     import datetime
 
@@ -22,7 +23,7 @@ if config.CONSOLE or args.console:
 
     if (table is not None) and len(table) > 0:
         # suggestion.suggest(table)
-        suggestion.saveResults(table, r'C:\Users\FengZhiheng\Desktop\g\a.csv')
+        suggestion.saveResults(table, r'C:\Users\FengZhiheng\Desktop\g\G2\r.csv')
     else:
         log.error('No correct csgo items remain. Please check if conditions are to strict.')
 
@@ -30,7 +31,7 @@ if config.CONSOLE or args.console:
         database = [x.to_dict() for x in table]
         with open(args.output, "w", encoding='utf-8') as f:
             f.write(json.dumps(database))
-    
+
     end = datetime.datetime.now()
     log.info("END: {}. TIME USED: {}.".format(end, end - start))
 else:

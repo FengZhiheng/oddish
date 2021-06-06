@@ -36,3 +36,26 @@ def sort_by_column(table, suggestion, column, ascending=True):
 
 def filter_table(table):
     return [x for x in table if getattr(x, 'history_sold') >= config.MIN_SOLD_THRESHOLD]
+
+def saveResults(table,outputPath):
+    import pandas as pd
+    import os
+
+    if os.path.exists(outputPath):
+        dfr = pd.read_csv(outputPath)
+    else:
+        dfr = pd.DataFrame()
+
+    itemIndex = 0
+    time = table[0].to_dict()['crawl_time']
+
+    for n, item in enumerate(table):
+        itemJson = item.to_dict()
+        name = itemJson['name']
+        price = itemJson['price']
+        dfr.loc[n, "name"] = name
+        dfr.loc[n, time] = price
+
+    dfr.to_csv(outputPath,index = None)
+
+

@@ -55,3 +55,29 @@ def goods_section_page_url(category, page_num, page_size=20):
         base += '&category={}'.format(category)
 
     return base
+
+
+
+def goods_section_page_url_upgrade(category, page_num, page_size=20, skin = None, exterior='wearcategory1',quality='normal', rarity='ancient_weapon'):
+    # skin:二西莫夫
+    # exterior:wearcategory1  代表略磨
+    # quality:normal 代表普通，没有startTrack
+    # rarity:ancient_weapon  受限  代表传说
+
+    # buff support page_size parameter, but the max value can only be 80
+    base = BUFF_GOODS + 'game=csgo&page_num={}&sort_by=price.desc&min_price={}&max_price={}&page_size={}' \
+        .format(page_num, config.CRAWL_MIN_PRICE_ITEM, config.CRAWL_MAX_PRICE_ITEM, page_size)
+    if category is not None:
+        base += '&category={}'.format(category)
+
+    if exterior is not None:
+        base += '&exterior={}'.format(exterior)
+    if quality is not None:
+        base += '&quality={}'.format(quality)
+    if rarity is not None:
+        base += '&rarity={}'.format(rarity)
+
+    if skin is not None:
+        base += '&search={}'.format(skin)
+
+    return base

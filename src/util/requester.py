@@ -45,7 +45,7 @@ def get_json_dict_raw(url, cookies = {}, proxy = False, times = 1, is_steam_requ
 
     try:
         if proxy and config.PROXY != {}:
-            return requests.get(url, headers = headers, cookies = cookies, timeout = 5, 
+            return requests.get(url, headers = headers, cookies = cookies, timeout = 5,
                 proxies = { "http": config.PROXY, "https": config.PROXY }).text
         return requests.get(url, headers = headers, cookies = cookies, timeout = 5).text
     except Timeout:
