@@ -8,7 +8,7 @@ from aiohttp_socks import ProxyConnector
 from datetime import datetime
 
 from src.config.definitions import config
-from src.config.urls import steam_price_history_url, goods_section_root_url, goods_root_url, goods_section_page_url,goods_section_page_url_upgrade
+from src.config.urls import steam_price_history_url, goods_section_root_url, goods_root_url, goods_section_page_url
 from src.data.item import Item
 from src.util.requester import async_get_json_dict, get_headers, get_json_dict
 from src.util.category import final_categories
@@ -16,7 +16,6 @@ from src.util.logger import log
 from src.util.cache import exist
 from src.util import timer
 
-#使用steam 获取历史价格
 async def async_crawl_item_history_price(index, item, session):
     history_prices = []
 
@@ -72,7 +71,7 @@ def collect_item(item):
         log.info("{} price is higher than {}. Drop it!".format(name, config.CRAWL_MAX_PRICE_ITEM))
         return None
 
-    log.info(" {}.".format(name))
+    log.info("Finish parsing {}.".format(name))
     return Item(buff_id, name, min_price, sell_num, steam_url, steam_predict_price, buy_max_price)
 
 def csgo_all_categories():
@@ -89,7 +88,8 @@ async def crawl_goods_by_price_section(category=None):
     timeout = aiohttp.ClientTimeout(total=30 * 60)
     if config.PROXY:
         # use socks
-        connector = ProxyConnector.from_url(config.PROXY, limit=5)
+        #connector = ProxyConnector.from_url(config.PROXY, limit=5)
+        connector = ProxyConnector.from_url('socks5://127.0.0.1:7890', limit=5)
     else:
         connector = aiohttp.TCPConnector(limit=5)
 
@@ -120,17 +120,12 @@ async def crawl_goods_by_price_section(category=None):
     log.info('Totally {} items of {} pages to crawl.'.format(total_count, total_page))
     async with aiohttp.ClientSession(cookies=config.STEAM_COOKIE, headers=get_headers(), connector=connector,timeout=timeout) as session:
         # get each page
-
-        page_url_list =config.URL_LIST
-
-        for page_url in page_url_list:
-            # log.info('Page {} / {}'.format(page_num, total_page))
-            # page_url = goods_section_page_url_upgrade(
-            #     category, page_num,
-            #     page_size=max_page_size if use_max_page_size else default_page_size,skin = "二西莫夫", exterior='wearcategory1',quality='normal', rarity='ancient_weapon'
-            # )
-
-            # print(page_url)
+        for page_num in range(1, total_page + 1):
+            log.info('Page {} / {}'.format(page_num, total_page))
+            page_url = goods_section_page_url(
+                category, page_num,
+                page_size=max_page_size if use_max_page_size else default_page_size
+            )
             page_json = get_json_dict(page_url, config.BUFF_COOKIE)
             if (page_json is not None) and ('data' in page_json) and ('items' in page_json['data']):
                 # items on this page
@@ -140,24 +135,21 @@ async def crawl_goods_by_price_section(category=None):
                     csgo_item = collect_item(item)
                     if csgo_item is not None:
                         category_items.append(csgo_item)
+                        try:
+                            tasks.append(async_crawl_item_history_price(len(category_items), category_items[-1], session))
+                        except Exception as e:
+                            log.error(traceback.format_exc())
 
-                        # 关闭使用steam 获取价格的渠道。因为翻墙失败了
-                        # try:
-                        #     tasks.append(async_crawl_item_history_price(len(category_items), category_items[-1], session))
-                        # except Exception as e:
-                        #     log.error(traceback.format_exc())
-
-                # stamp = time.time()
-                # try:
-                #     await asyncio.gather(*tasks)
-                # except Exception as e:
-                #     log.error(traceback.format_exc())
-                # tasks = []
-                # if not exist(page_url):
-                #     await timer.async_sleep_awhile(0, time.time() - stamp)
+                stamp = time.time()
+                try:
+                    await asyncio.gather(*tasks)
+                except Exception as e:
+                    log.error(traceback.format_exc())
+                tasks = []
+                if not exist(page_url):
+                    await timer.async_sleep_awhile(0, time.time() - stamp)
             else:
                 log.warn("No specific data for page {}. Skip this page.".format(page_url))
-
     return category_items
 
 

@@ -21,8 +21,7 @@ if config.CONSOLE or args.console:
     table = item_crawler.crawl()
 
     if (table is not None) and len(table) > 0:
-        # suggestion.suggest(table)
-        suggestion.saveResults(table, r'C:\Users\FengZhiheng\Desktop\g\a.csv')
+        suggestion.suggest(table)
     else:
         log.error('No correct csgo items remain. Please check if conditions are to strict.')
 
