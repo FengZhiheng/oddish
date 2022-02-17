@@ -84,10 +84,6 @@ SUGGESTION_LOGGER = os.path.join(SUGGESTION_PATH, 'suggestion_' + DATE_TIME + PR
 # cache file
 CACHE_DIR = 'cache'
 
-# LOAD URL_LIST
-URL_LIST = json.loads(config_filter['url_List'])
-
-
 class config_export:
     def __init__(self):
         self.CONSOLE = CONSOLE
@@ -124,10 +120,6 @@ class config_export:
         self.CATEGORY_BLACK_LIST = CATEGORY_BLACK_LIST
         self.CATEGORY_WHITE_LIST = CATEGORY_WHITE_LIST
         self.TOP_N = TOP_N
-
-        self.URL_LIST = URL_LIST
-
-
     def save(self):
         configr['BASIC']['proxy'] = self.PROXY
         configr['BASIC']['buff_cookie'] = SimpleCookie(self.BUFF_COOKIE).output(header = '', sep=';')
