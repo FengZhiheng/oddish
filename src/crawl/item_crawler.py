@@ -88,8 +88,7 @@ async def crawl_goods_by_price_section(category=None):
     timeout = aiohttp.ClientTimeout(total=30 * 60)
     if config.PROXY:
         # use socks
-        #connector = ProxyConnector.from_url(config.PROXY, limit=5)
-        connector = ProxyConnector.from_url('socks5://127.0.0.1:7890', limit=5)
+        connector = ProxyConnector.from_url(config.PROXY, limit=5)
     else:
         connector = aiohttp.TCPConnector(limit=5)
 
